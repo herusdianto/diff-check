@@ -627,13 +627,13 @@ header p {
 }
 
 .copy-btn:hover {
-    border-color: #10b981 !important;
-    background: #d1fae5 !important;
+    border-color: var(--primary-color) !important;
+    background: #e0e7ff !important;
 }
 
 .download-btn:hover {
-    border-color: #6366f1 !important;
-    background: #e0e7ff !important;
+    border-color: var(--secondary-color) !important;
+    background: #d1fae5 !important;
 }
 
 .swap-btn:hover {
@@ -656,12 +656,12 @@ header p {
 }
 
 .dark-mode .copy-btn:hover {
-    border-color: #10b981 !important;
-    background: #23272b !important;
+    border-color: var(--primary-color) !important;
+    background: #333a41 !important;
 }
 
 .dark-mode .download-btn:hover {
-    border-color: #6366f1 !important;
+    border-color: var(--secondary-color) !important;
     background: #333a41 !important;
 }
 
