@@ -35,10 +35,8 @@ class DiffCheck {
     saveLastSession() {
         const leftText = document.getElementById('input-text-left').value;
         const rightText = document.getElementById('input-text-right').value;
-        const diffOutput = document.getElementById('diff-output').innerHTML;
         localStorage.setItem('diffcheck_left', leftText);
         localStorage.setItem('diffcheck_right', rightText);
-        localStorage.setItem('diffcheck_output', diffOutput);
         // Save options
         const options = {
             ignoreCase: document.getElementById('ignore-case').checked,
@@ -53,10 +51,8 @@ class DiffCheck {
     restoreLastSession() {
         const left = localStorage.getItem('diffcheck_left');
         const right = localStorage.getItem('diffcheck_right');
-        const output = localStorage.getItem('diffcheck_output');
         if (left !== null) document.getElementById('input-text-left').value = left;
         if (right !== null) document.getElementById('input-text-right').value = right;
-        if (output !== null) document.getElementById('diff-output').innerHTML = output;
         // Restore options
         const optionsStr = localStorage.getItem('diffcheck_options');
         if (optionsStr) {
@@ -68,6 +64,7 @@ class DiffCheck {
                 if (typeof options.showLineNumbers === 'boolean') document.getElementById('show-line-numbers').checked = options.showLineNumbers;
             } catch (e) {}
         }
+        this.compare();
     }
 
     init() {
