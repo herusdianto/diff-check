@@ -20,7 +20,54 @@ class DiffCheck {
     constructor() {
         this.diffResult = null;
         this.init();
-        this.setDefaultExample();
+        this.restoreLastSession(); // Restore last input/output and options first
+        // Only load example if both inputs are empty after restore
+        const leftText = document.getElementById('input-text-left');
+        const rightText = document.getElementById('input-text-right');
+        if (!leftText.value.trim() && !rightText.value.trim()) {
+            this.setDefaultExample();
+        } else {
+            this.compare(); // Ensure diff is rendered for restored session
+        }
+    }
+
+    // Save current input, output, and options to localStorage
+    saveLastSession() {
+        const leftText = document.getElementById('input-text-left').value;
+        const rightText = document.getElementById('input-text-right').value;
+        const diffOutput = document.getElementById('diff-output').innerHTML;
+        localStorage.setItem('diffcheck_left', leftText);
+        localStorage.setItem('diffcheck_right', rightText);
+        localStorage.setItem('diffcheck_output', diffOutput);
+        // Save options
+        const options = {
+            ignoreCase: document.getElementById('ignore-case').checked,
+            ignoreWhitespace: document.getElementById('ignore-whitespace').checked,
+            ignoreBlankLines: document.getElementById('ignore-blank-lines').checked,
+            showLineNumbers: document.getElementById('show-line-numbers').checked
+        };
+        localStorage.setItem('diffcheck_options', JSON.stringify(options));
+    }
+
+    // Restore last input, output, and options from localStorage
+    restoreLastSession() {
+        const left = localStorage.getItem('diffcheck_left');
+        const right = localStorage.getItem('diffcheck_right');
+        const output = localStorage.getItem('diffcheck_output');
+        if (left !== null) document.getElementById('input-text-left').value = left;
+        if (right !== null) document.getElementById('input-text-right').value = right;
+        if (output !== null) document.getElementById('diff-output').innerHTML = output;
+        // Restore options
+        const optionsStr = localStorage.getItem('diffcheck_options');
+        if (optionsStr) {
+            try {
+                const options = JSON.parse(optionsStr);
+                if (typeof options.ignoreCase === 'boolean') document.getElementById('ignore-case').checked = options.ignoreCase;
+                if (typeof options.ignoreWhitespace === 'boolean') document.getElementById('ignore-whitespace').checked = options.ignoreWhitespace;
+                if (typeof options.ignoreBlankLines === 'boolean') document.getElementById('ignore-blank-lines').checked = options.ignoreBlankLines;
+                if (typeof options.showLineNumbers === 'boolean') document.getElementById('show-line-numbers').checked = options.showLineNumbers;
+            } catch (e) {}
+        }
     }
 
     init() {
@@ -32,17 +79,26 @@ class DiffCheck {
         this.bindSwapButton();
         this.bindClearButton();
         this.initThemeToggle();
+        // Save and compare on input change
+        const leftText = document.getElementById('input-text-left');
+        const rightText = document.getElementById('input-text-right');
+        leftText.addEventListener('input', () => { this.compare(); this.saveLastSession(); });
+        rightText.addEventListener('input', () => { this.compare(); this.saveLastSession(); });
+        // Auto-compare on options change
+        const optionIds = ['ignore-case', 'ignore-whitespace', 'ignore-blank-lines', 'show-line-numbers'];
+        optionIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('change', () => { this.compare(); this.saveLastSession(); });
+            }
+        });
     }
 
     setDefaultExample() {
         const leftText = document.getElementById('input-text-left');
         const rightText = document.getElementById('input-text-right');
-        if (leftText && !leftText.value.trim()) {
-            leftText.value = DEFAULT_LEFT;
-        }
-        if (rightText && !rightText.value.trim()) {
-            rightText.value = DEFAULT_RIGHT;
-        }
+        leftText.value = DEFAULT_LEFT;
+        rightText.value = DEFAULT_RIGHT;
         this.compare();
     }
 
@@ -164,7 +220,10 @@ class DiffCheck {
 
     // ==================== Compare Button ====================
     bindCompareButton() {
-        document.getElementById('compare-btn').addEventListener('click', () => this.compare());
+        document.getElementById('compare-btn').addEventListener('click', () => {
+            this.compare();
+            this.saveLastSession(); // Save after compare
+        });
     }
 
     compare() {
@@ -215,6 +274,7 @@ class DiffCheck {
         this.updateStats(diff);
 
         this.showStatus('Comparison completed!', 'success');
+        this.saveLastSession(); // Save after compare
     }
 
     computeDiff(leftLines, rightLines, processLine) {
@@ -378,6 +438,7 @@ class DiffCheck {
 
             // Auto-trigger compare after swap
             this.compare();
+            this.saveLastSession(); // Save after swap
         });
     }
 
@@ -390,6 +451,11 @@ class DiffCheck {
             document.getElementById('stats').classList.add('hidden');
             this.diffResult = null;
             this.showStatus('All cleared!', 'success');
+            // Clear saved session
+            localStorage.removeItem('diffcheck_left');
+            localStorage.removeItem('diffcheck_right');
+            localStorage.removeItem('diffcheck_output');
+            localStorage.removeItem('diffcheck_options');
         });
     }
 
