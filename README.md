@@ -97,6 +97,10 @@ All text processing is done entirely in your browser. No data is ever sent to an
 
 MIT License
 
-## Author
+## Contributing
 
-Made with AI by [Heru Rusdianto](https://herusdianto.github.io/)
+Contributions are welcome! Feel free to submit a Pull Request.
+
+## Demo
+
+[https://herusdianto.github.io/diff-check/](https://herusdianto.github.io/diff-check/)
